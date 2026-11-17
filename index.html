@@ -1,0 +1,1143 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#101828">
+
+<title>PDF Studio - Image to PDF</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<style>
+:root {
+    --primary: #635bff;
+    --primary-dark: #5146e5;
+    --bg: #f5f6fa;
+    --surface: #ffffff;
+    --text: #182230;
+    --muted: #667085;
+    --border: #eaecf0;
+    --radius: 16px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: Inter, system-ui, -apple-system, sans-serif;
+}
+
+button, input, select { font-family: inherit; }
+
+.navbar {
+    background: #fff;
+    border-bottom: 1px solid var(--border);
+    padding: 15px 0;
+}
+
+.brand-icon {
+    width: 38px;
+    height: 38px;
+    display: grid;
+    place-items: center;
+    color: white;
+    background: linear-gradient(135deg,#756bff,#5146e5);
+    border-radius: 11px;
+    font-size: 20px;
+}
+
+.brand-name {
+    font-size: 19px;
+    font-weight: 800;
+    letter-spacing: -.6px;
+}
+
+.brand-name span { color: var(--primary); }
+
+.main-container {
+    max-width: 1150px;
+}
+
+.page-heading {
+    font-weight: 800;
+    letter-spacing: -1px;
+}
+
+.subtitle { color: var(--muted); }
+
+.panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: 0 3px 12px rgba(16,24,40,.035);
+}
+
+.section-title {
+    font-weight: 750;
+    font-size: 15px;
+}
+
+.section-subtitle {
+    font-size: 12px;
+    color: var(--muted);
+}
+
+.upload-zone {
+    border: 2px dashed #c7c9dc;
+    border-radius: 15px;
+    background: #fafaff;
+    padding: 36px 15px;
+    text-align: center;
+    transition: .2s;
+    cursor: pointer;
+}
+
+.upload-zone:hover,
+.upload-zone.dragover {
+    background: #f0efff;
+    border-color: var(--primary);
+}
+
+.upload-icon {
+    width: 58px;
+    height: 58px;
+    display: grid;
+    place-items: center;
+    margin: auto;
+    border-radius: 17px;
+    color: var(--primary);
+    background: #eeedff;
+    font-size: 27px;
+}
+
+.btn-primary {
+    background: var(--primary);
+    border-color: var(--primary);
+}
+
+.btn-primary:hover {
+    background: var(--primary-dark);
+    border-color: var(--primary-dark);
+}
+
+.btn-soft {
+    background: #f0efff;
+    color: var(--primary);
+    border: 1px solid #e3e1ff;
+}
+
+.btn-soft:hover {
+    background: #e5e3ff;
+    color: var(--primary-dark);
+}
+
+.form-control, .form-select {
+    border-color: #e0e3e9;
+    border-radius: 9px;
+    min-height: 42px;
+    font-size: 13px;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(99,91,255,.12);
+}
+
+.form-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: #475467;
+}
+
+.image-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill,minmax(145px,1fr));
+    gap: 13px;
+}
+
+.image-card {
+    border: 1px solid var(--border);
+    background: white;
+    border-radius: 12px;
+    padding: 9px;
+    position: relative;
+    overflow: hidden;
+    transition: .2s;
+}
+
+.image-card:hover {
+    border-color: #b9b4ff;
+    box-shadow: 0 5px 15px rgba(99,91,255,.09);
+}
+
+.image-card.dragging { opacity: .4; }
+
+.image-thumb {
+    width: 100%;
+    height: 140px;
+    object-fit: contain;
+    background: #f2f3f7;
+    border-radius: 8px;
+}
+
+.image-number {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    padding: 4px 8px;
+    border-radius: 7px;
+    color: white;
+    background: rgba(20,25,40,.8);
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.image-name {
+    font-size: 11px;
+    color: #475467;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin-top: 8px;
+}
+
+.image-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 8px;
+    gap: 4px;
+}
+
+.image-actions button {
+    font-size: 12px;
+    padding: 5px 8px;
+}
+
+.stat-card {
+    background: #fafaff;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 13px;
+}
+
+.stat-value {
+    font-weight: 800;
+    font-size: 21px;
+}
+
+.stat-label {
+    color: var(--muted);
+    font-size: 11px;
+}
+
+.setting-divider {
+    border-top: 1px solid var(--border);
+    margin: 19px 0;
+}
+
+.generate-btn {
+    min-height: 52px;
+    font-weight: 750;
+    border-radius: 12px;
+    font-size: 15px;
+}
+
+.empty-state {
+    padding: 38px 10px;
+    text-align: center;
+    color: var(--muted);
+    border: 1px dashed var(--border);
+    border-radius: 13px;
+}
+
+.empty-state i {
+    font-size: 35px;
+    color: #b8b9c9;
+}
+
+.progress {
+    height: 8px;
+    border-radius: 20px;
+    background: #e9e8f5;
+}
+
+.progress-bar { background: var(--primary); }
+
+.footer {
+    color: var(--muted);
+    font-size: 12px;
+}
+
+@media(max-width:576px) {
+    .image-list {
+        grid-template-columns: repeat(2,minmax(0,1fr));
+    }
+    .image-thumb { height: 125px; }
+    .page-heading { font-size: 26px; }
+}
+</style>
+</head>
+
+<body>
+
+<!-- HEADER -->
+<nav class="navbar">
+<div class="container main-container">
+    <div class="d-flex align-items-center gap-2">
+        <div class="brand-icon">
+            <i class="bi bi-file-earmark-pdf"></i>
+        </div>
+        <div class="brand-name">PDF<span>Studio</span></div>
+    </div>
+
+    <span class="badge rounded-pill text-bg-light border">
+        <i class="bi bi-shield-check text-success"></i>
+        Private Processing
+    </span>
+</div>
+</nav>
+
+<main class="container main-container py-4">
+
+<!-- TITLE -->
+<div class="mb-4">
+    <div class="badge rounded-pill mb-2"
+         style="background:#eeedff;color:#635bff">
+        IMAGE TO PDF CONVERTER
+    </div>
+
+    <h2 class="page-heading">Create your PDF</h2>
+
+    <p class="subtitle mb-0">
+        Convert images into professional PDF documents in seconds.
+    </p>
+</div>
+
+<div class="row g-4">
+
+<!-- LEFT SIDE -->
+<div class="col-lg-8">
+
+<div class="panel p-3 p-md-4 mb-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <div class="section-title">Upload Images</div>
+            <div class="section-subtitle">
+                JPG, PNG, WEBP and other browser-supported images
+            </div>
+        </div>
+        <i class="bi bi-cloud-arrow-up fs-4"
+           style="color:var(--primary)"></i>
+    </div>
+
+    <!-- Upload -->
+    <div class="upload-zone" id="dropZone">
+
+        <div class="upload-icon mb-3">
+            <i class="bi bi-images"></i>
+        </div>
+
+        <h6 class="fw-bold">Drag & Drop Your Images</h6>
+
+        <p class="section-subtitle mb-3">
+            or browse files from your device
+        </p>
+
+        <button type="button" class="btn btn-primary btn-sm px-4"
+                onclick="document.getElementById('fileInput').click()">
+            <i class="bi bi-plus-lg"></i> Browse Images
+        </button>
+
+        <div class="mt-3 section-subtitle">
+            You can select multiple images at once.
+        </div>
+    </div>
+
+    <input type="file" id="fileInput"
+           accept="image/*" multiple hidden>
+
+    <input type="file" id="cameraInput"
+           accept="image/*" capture="environment" hidden>
+
+    <div class="d-flex flex-wrap gap-2 mt-3">
+
+        <button class="btn btn-soft btn-sm"
+                onclick="document.getElementById('cameraInput').click()">
+            <i class="bi bi-camera"></i> Take Photo
+        </button>
+
+        <button class="btn btn-soft btn-sm"
+                onclick="document.getElementById('fileInput').click()">
+            <i class="bi bi-folder2-open"></i> Add More
+        </button>
+
+    </div>
+
+    <div class="setting-divider"></div>
+
+    <!-- Image toolbar -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+
+        <div>
+            <div class="section-title">Your Images</div>
+            <div class="section-subtitle">
+                Drag images to change their order.
+            </div>
+        </div>
+
+        <button class="btn btn-outline-danger btn-sm"
+                onclick="clearImages()">
+            <i class="bi bi-trash3"></i> Clear All
+        </button>
+
+    </div>
+
+    <!-- Statistics -->
+    <div class="row g-2 mb-3">
+
+        <div class="col-6">
+            <div class="stat-card">
+                <div class="stat-value" id="imageCount">0</div>
+                <div class="stat-label">TOTAL IMAGES</div>
+            </div>
+        </div>
+
+        <div class="col-6">
+            <div class="stat-card">
+                <div class="stat-value" id="pageCount">0</div>
+                <div class="stat-label">PDF PAGES</div>
+            </div>
+        </div>
+
+    </div>
+
+    <div id="imageList" class="image-list">
+
+        <div class="empty-state" style="grid-column:1/-1">
+            <i class="bi bi-file-earmark-image"></i>
+            <div class="fw-semibold mt-2">No images added yet</div>
+            <div class="small">Upload images to get started.</div>
+        </div>
+
+    </div>
+
+</div>
+
+</div>
+
+<!-- RIGHT SIDE -->
+<div class="col-lg-4">
+
+<div class="panel p-3 p-md-4">
+
+    <div class="section-title mb-1">
+        <i class="bi bi-sliders2 me-2"
+           style="color:var(--primary)"></i>
+        PDF Settings
+    </div>
+
+    <div class="section-subtitle mb-4">
+        Customize your document.
+    </div>
+
+    <!-- Filename -->
+    <div class="mb-3">
+        <label class="form-label">PDF File Name</label>
+        <input type="text" id="fileName"
+               class="form-control"
+               value="My-Document"
+               placeholder="Enter file name">
+    </div>
+
+    <!-- Page size -->
+    <div class="mb-3">
+        <label class="form-label">Page Size</label>
+        <select class="form-select" id="pageSize">
+            <option value="a4" selected>A4 (210 × 297 mm)</option>
+            <option value="letter">Letter (216 × 279 mm)</option>
+            <option value="a5">A5 (148 × 210 mm)</option>
+            <option value="legal">Legal (216 × 356 mm)</option>
+        </select>
+    </div>
+
+    <!-- Orientation -->
+    <div class="mb-3">
+        <label class="form-label">Page Orientation</label>
+        <select class="form-select" id="orientation">
+            <option value="portrait" selected>Portrait</option>
+            <option value="landscape">Landscape</option>
+        </select>
+    </div>
+
+    <!-- Image fit -->
+    <div class="mb-3">
+        <label class="form-label">Image Layout</label>
+        <select class="form-select" id="imageFit">
+            <option value="contain">Fit to Page (No Cropping)</option>
+            <option value="cover">Fill Page (Crop Edges)</option>
+        </select>
+    </div>
+
+    <!-- Margins -->
+    <div class="mb-3">
+        <label class="form-label">Page Margins</label>
+        <select class="form-select" id="margin">
+            <option value="0">No Margin</option>
+            <option value="5">Small (5 mm)</option>
+            <option value="10" selected>Normal (10 mm)</option>
+            <option value="15">Large (15 mm)</option>
+            <option value="20">Extra Large (20 mm)</option>
+        </select>
+    </div>
+
+    <div class="setting-divider"></div>
+
+    <!-- Quality -->
+    <div class="mb-3">
+        <label class="form-label d-flex justify-content-between">
+            <span>Image Quality</span>
+            <span id="qualityValue" style="color:var(--primary)">
+                90%
+            </span>
+        </label>
+
+        <input type="range" class="form-range"
+               id="quality" min="40" max="100"
+               value="90"
+               oninput="qualityValue.textContent=this.value+'%'">
+        <div class="d-flex justify-content-between section-subtitle">
+            <span>Smaller file</span>
+            <span>Higher quality</span>
+        </div>
+    </div>
+
+    <!-- Advanced -->
+    <div class="setting-divider"></div>
+
+    <div class="section-title mb-3">Advanced Options</div>
+
+    <div class="form-check mb-2">
+        <input class="form-check-input" type="checkbox"
+               id="pageNumbers">
+        <label class="form-check-label small" for="pageNumbers">
+            Add page numbers
+        </label>
+    </div>
+
+    <div class="form-check mb-2">
+        <input class="form-check-input" type="checkbox"
+               id="pageBorder">
+        <label class="form-check-label small" for="pageBorder">
+            Add page border
+        </label>
+    </div>
+
+    <div class="form-check mb-3">
+        <input class="form-check-input" type="checkbox"
+               id="grayscale">
+        <label class="form-check-label small" for="grayscale">
+            Convert images to grayscale
+        </label>
+    </div>
+
+    <!-- Generate -->
+    <button class="btn btn-primary generate-btn w-100"
+            id="generateBtn" onclick="generatePDF()">
+
+        <i class="bi bi-file-earmark-pdf me-2"></i>
+        Generate PDF
+
+    </button>
+
+    <div id="progressArea" class="mt-3" hidden>
+
+        <div class="d-flex justify-content-between mb-2">
+            <small class="fw-semibold" id="progressText">
+                Processing...
+            </small>
+            <small id="progressPercent">0%</small>
+        </div>
+
+        <div class="progress">
+            <div class="progress-bar" id="progressBar"
+                 style="width:0%"></div>
+        </div>
+
+    </div>
+
+    <div class="text-center section-subtitle mt-3"
+         id="status">
+        <i class="bi bi-lock-fill text-success"></i>
+        Your images stay on your device.
+    </div>
+
+</div>
+
+<!-- Tips -->
+<div class="panel p-3 mt-3">
+    <div class="section-title mb-2">
+        <i class="bi bi-lightbulb text-warning me-2"></i>
+        Quick Tips
+    </div>
+    <ul class="section-subtitle ps-3 mb-0">
+        <li class="mb-2">One image creates one PDF page.</li>
+        <li class="mb-2">Use Fit to Page to preserve the full image.</li>
+        <li>Reorder images before generating your PDF.</li>
+    </ul>
+</div>
+
+</div>
+</div>
+
+</main>
+
+<footer class="container main-container text-center py-4 footer">
+    <div class="fw-bold mb-1">PDF Studio</div>
+    <div>Simple. Professional. Secure.</div>
+    <div class="mt-2">© 2026 PDF Studio. All rights reserved.</div>
+</footer>
+
+
+<script>
+const $ = id => document.getElementById(id);
+
+let images = [];
+let nextID = 1;
+let dragIndex = null;
+
+const fileInput = $("fileInput");
+const cameraInput = $("cameraInput");
+const dropZone = $("dropZone");
+const imageList = $("imageList");
+
+function updateStats() {
+    $("imageCount").textContent = images.length;
+    $("pageCount").textContent = images.length;
+}
+
+function escapeHTML(value) {
+    return String(value).replace(/[&<>"']/g, c => ({
+        "&":"&amp;",
+        "<":"&lt;",
+        ">":"&gt;",
+        '"':"&quot;",
+        "'":"&#39;"
+    })[c]);
+}
+
+function addFiles(files) {
+
+    Array.from(files).forEach(file => {
+
+        if (!file.type.startsWith("image/")) return;
+
+        const reader = new FileReader();
+
+        reader.onload = event => {
+
+            const image = new Image();
+
+            image.onload = () => {
+
+                images.push({
+                    id: nextID++,
+                    src: event.target.result,
+                    name: file.name,
+                    rotation: 0
+                });
+
+                renderImages();
+            };
+
+            image.onerror = () => {
+                alert("Could not load image: " + file.name);
+            };
+
+            image.src = event.target.result;
+        };
+
+        reader.onerror = () => {
+            alert("Could not read " + file.name);
+        };
+
+        reader.readAsDataURL(file);
+    });
+}
+
+fileInput.addEventListener("change", function() {
+    addFiles(this.files);
+    this.value = "";
+});
+
+cameraInput.addEventListener("change", function() {
+    addFiles(this.files);
+    this.value = "";
+});
+
+// Drag and drop upload
+
+["dragenter","dragover"].forEach(name => {
+    dropZone.addEventListener(name, event => {
+        event.preventDefault();
+        dropZone.classList.add("dragover");
+    });
+});
+
+["dragleave","drop"].forEach(name => {
+    dropZone.addEventListener(name, event => {
+        event.preventDefault();
+        dropZone.classList.remove("dragover");
+    });
+});
+
+dropZone.addEventListener("drop", event => {
+    addFiles(event.dataTransfer.files);
+});
+
+function renderImages() {
+
+    updateStats();
+
+    if (!images.length) {
+        imageList.innerHTML = `
+        <div class="empty-state" style="grid-column:1/-1">
+            <i class="bi bi-file-earmark-image"></i>
+            <div class="fw-semibold mt-2">No images added yet</div>
+            <div class="small">Upload images to get started.</div>
+        </div>`;
+        return;
+    }
+
+    imageList.innerHTML = "";
+
+    images.forEach((img,index) => {
+
+        const card = document.createElement("div");
+        card.className = "image-card";
+        card.draggable = true;
+        card.dataset.index = index;
+
+        card.innerHTML = `
+            <div class="position-relative">
+                <img class="image-thumb"
+                     src="${img.src}"
+                     style="transform:rotate(${img.rotation}deg)">
+
+                <span class="image-number">
+                    PAGE ${index+1}
+                </span>
+            </div>
+
+            <div class="image-name" title="${escapeHTML(img.name)}">
+                ${escapeHTML(img.name)}
+            </div>
+
+            <div class="image-actions">
+
+                <button class="btn btn-light btn-sm"
+                        title="Rotate left"
+                        onclick="rotateImage(${index},-90)">
+                    <i class="bi bi-arrow-counterclockwise"></i>
+                </button>
+
+                <button class="btn btn-light btn-sm"
+                        title="Rotate right"
+                        onclick="rotateImage(${index},90)">
+                    <i class="bi bi-arrow-clockwise"></i>
+                </button>
+
+                <button class="btn btn-light btn-sm"
+                        title="Move up"
+                        onclick="moveImage(${index},-1)"
+                        ${index===0?"disabled":""}>
+                    <i class="bi bi-arrow-up"></i>
+                </button>
+
+                <button class="btn btn-light btn-sm"
+                        title="Move down"
+                        onclick="moveImage(${index},1)"
+                        ${index===images.length-1?"disabled":""}>
+                    <i class="bi bi-arrow-down"></i>
+                </button>
+
+                <button class="btn btn-light text-danger btn-sm"
+                        title="Remove"
+                        onclick="removeImage(${img.id})">
+                    <i class="bi bi-trash3"></i>
+                </button>
+
+            </div>
+        `;
+
+        card.addEventListener("dragstart", event => {
+            dragIndex = index;
+            card.classList.add("dragging");
+            event.dataTransfer.effectAllowed = "move";
+        });
+
+        card.addEventListener("dragend", () => {
+            card.classList.remove("dragging");
+        });
+
+        card.addEventListener("dragover", event => {
+            event.preventDefault();
+        });
+
+        card.addEventListener("drop", event => {
+            event.preventDefault();
+
+            if (dragIndex === null || dragIndex === index) return;
+
+            const moved = images.splice(dragIndex,1)[0];
+            images.splice(index,0,moved);
+
+            dragIndex = null;
+            renderImages();
+        });
+
+        imageList.appendChild(card);
+    });
+}
+
+function moveImage(index,direction) {
+
+    const target = index + direction;
+
+    if (target < 0 || target >= images.length) return;
+
+    [images[index],images[target]] =
+    [images[target],images[index]];
+
+    renderImages();
+}
+
+function rotateImage(index,angle) {
+    images[index].rotation =
+        (images[index].rotation + angle + 360) % 360;
+
+    renderImages();
+}
+
+function removeImage(id) {
+    images = images.filter(img => img.id !== id);
+    renderImages();
+}
+
+function clearImages() {
+
+    if (!images.length) return;
+
+    if (!confirm("Remove all selected images?")) return;
+
+    images = [];
+    renderImages();
+}
+
+// Image processing
+
+function loadImage(src) {
+    return new Promise((resolve,reject) => {
+
+        const image = new Image();
+
+        image.onload = () => resolve(image);
+        image.onerror = () => reject(
+            new Error("Image loading failed")
+        );
+
+        image.src = src;
+    });
+}
+
+function prepareCanvas(img,rotation,quality,grayscale) {
+
+    const angle = rotation * Math.PI / 180;
+
+    const swap = rotation % 180 !== 0;
+
+    const width = swap ? img.height : img.width;
+    const height = swap ? img.width : img.height;
+
+    const maxSize = 3200;
+    const scale = Math.min(1,maxSize/Math.max(width,height));
+
+    const canvas = document.createElement("canvas");
+
+    canvas.width = Math.max(1,Math.round(width*scale));
+    canvas.height = Math.max(1,Math.round(height*scale));
+
+    const ctx = canvas.getContext("2d");
+
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+
+    ctx.save();
+
+    ctx.translate(canvas.width/2,canvas.height/2);
+    ctx.rotate(angle);
+
+    if (grayscale) {
+        ctx.filter = "grayscale(100%)";
+    }
+
+    ctx.drawImage(
+        img,
+        -img.width*scale/2,
+        -img.height*scale/2,
+        img.width*scale,
+        img.height*scale
+    );
+
+    ctx.restore();
+
+    return canvas.toDataURL("image/jpeg",quality);
+}
+
+// PDF generation
+
+async function generatePDF() {
+
+    if (!images.length) {
+        alert("Please upload at least one image.");
+        return;
+    }
+
+    if (!window.jspdf) {
+        alert("PDF library could not load. Check your internet connection.");
+        return;
+    }
+
+    const btn = $("generateBtn");
+
+    btn.disabled = true;
+
+    $("progressArea").hidden = false;
+    $("progressBar").style.width = "0%";
+
+    const setProgress = (percent,text) => {
+        $("progressBar").style.width = percent + "%";
+        $("progressPercent").textContent = percent + "%";
+        $("progressText").textContent = text;
+    };
+
+    try {
+
+        const {jsPDF} = window.jspdf;
+
+        const size = $("pageSize").value;
+        const orientation = $("orientation").value;
+        const margin = Number($("margin").value);
+        const fit = $("imageFit").value;
+        const quality = Number($("quality").value)/100;
+
+        const showNumbers = $("pageNumbers").checked;
+        const showBorder = $("pageBorder").checked;
+        const grayscale = $("grayscale").checked;
+
+        const name = $("fileName").value.trim()
+            .replace(/[\\/:*?"<>|]/g,"-")
+            .replace(/\.pdf$/i,"") || "My-Document";
+
+        const pdf = new jsPDF({
+            orientation: orientation,
+            unit: "mm",
+            format: size,
+            compress: true
+        });
+
+        const pageWidth = pdf.internal.pageSize.getWidth();
+        const pageHeight = pdf.internal.pageSize.getHeight();
+
+        const contentWidth = pageWidth - margin*2;
+        const contentHeight = pageHeight - margin*2;
+
+        for (let i=0;i<images.length;i++) {
+
+            setProgress(
+                Math.round(i/images.length*100),
+                "Processing image " + (i+1) + " of " + images.length
+            );
+
+            const item = images[i];
+
+            const img = await loadImage(item.src);
+
+            const data = prepareCanvas(
+                img,
+                item.rotation,
+                quality,
+                grayscale
+            );
+
+            const rotated = item.rotation % 180 !== 0;
+
+            const originalWidth = rotated ? img.height : img.width;
+            const originalHeight = rotated ? img.width : img.height;
+
+            const ratio = originalWidth/originalHeight;
+            const boxRatio = contentWidth/contentHeight;
+
+            let drawWidth,drawHeight;
+
+            if (fit === "contain") {
+
+                if (ratio > boxRatio) {
+                    drawWidth = contentWidth;
+                    drawHeight = contentWidth/ratio;
+                } else {
+                    drawHeight = contentHeight;
+                    drawWidth = contentHeight*ratio;
+                }
+
+            } else {
+
+                if (ratio > boxRatio) {
+                    drawHeight = contentHeight;
+                    drawWidth = contentHeight*ratio;
+                } else {
+                    drawWidth = contentWidth;
+                    drawHeight = contentWidth/ratio;
+                }
+            }
+
+            const x = margin+(contentWidth-drawWidth)/2;
+            const y = margin+(contentHeight-drawHeight)/2;
+
+            if (i > 0) {
+                pdf.addPage(size,orientation);
+            }
+
+            if (fit === "cover") {
+
+                // Crop image to fill page using canvas
+
+                const crop = document.createElement("canvas");
+
+                const targetRatio = contentWidth/contentHeight;
+
+                let sx=0,sy=0,sw=img.width,sh=img.height;
+
+                if (ratio > targetRatio) {
+                    sw = img.height*targetRatio;
+                    sx = (img.width-sw)/2;
+                } else {
+                    sh = img.width/targetRatio;
+                    sy = (img.height-sh)/2;
+                }
+
+                crop.width = 2400;
+                crop.height = Math.round(2400/targetRatio);
+
+                const cctx = crop.getContext("2d");
+
+                cctx.save();
+                cctx.translate(crop.width/2,crop.height/2);
+                cctx.rotate(item.rotation*Math.PI/180);
+
+                if (grayscale) cctx.filter="grayscale(100%)";
+
+                cctx.drawImage(
+                    img,
+                    -sw/2,-sh/2,sw,sh
+                );
+
+                cctx.restore();
+
+                pdf.addImage(
+                    crop.toDataURL("image/jpeg",quality),
+                    "JPEG",
+                    margin,
+                    margin,
+                    contentWidth,
+                    contentHeight
+                );
+
+            } else {
+
+                pdf.addImage(
+                    data,
+                    "JPEG",
+                    x,
+                    y,
+                    drawWidth,
+                    drawHeight
+                );
+            }
+
+            // Page border
+
+            if (showBorder) {
+                pdf.setDrawColor(190,190,200);
+                pdf.setLineWidth(.3);
+
+                pdf.rect(
+                    margin,
+                    margin,
+                    contentWidth,
+                    contentHeight
+                );
+            }
+
+            // Page numbering
+
+            if (showNumbers) {
+                pdf.setFont("helvetica","normal");
+                pdf.setFontSize(9);
+                pdf.setTextColor(110,110,120);
+
+                pdf.text(
+                    "Page " + (i+1) + " of " + images.length,
+                    pageWidth/2,
+                    pageHeight-4,
+                    {align:"center"}
+                );
+            }
+
+            setProgress(
+                Math.round((i+1)/images.length*100),
+                "Creating PDF..."
+            );
+
+            await new Promise(resolve => setTimeout(resolve,0));
+        }
+
+        setProgress(100,"Preparing download...");
+
+        pdf.save(name+".pdf");
+
+        $("status").innerHTML =
+            '<i class="bi bi-check-circle-fill text-success"></i> PDF created successfully!';
+
+        $("progressText").textContent = "Completed successfully";
+
+    } catch(error) {
+
+        console.error(error);
+
+        alert("Something went wrong while generating the PDF.");
+
+        $("status").textContent = "PDF generation failed.";
+
+    } finally {
+
+        btn.disabled = false;
+
+        setTimeout(() => {
+            $("progressArea").hidden = true;
+        },2500);
+    }
+}
+
+renderImages();
+</script>
+
+</body>
+</html>
